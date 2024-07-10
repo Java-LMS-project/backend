@@ -1,0 +1,74 @@
+- Book EndPoint
+POST /book/add - adding book
+parameters - title, author, description, image
+
+PUT /book/edit - editing book
+{
+  "title":"hi1",
+  "new_title":"hello1",
+  "new_author":"Mg All"
+}
+
+GET /book - get all books
+GET /book/{id} - get specific book
+
+DELETE /book/delete - delete book
+{
+  "title":"Hehe3"
+}
+
+POST /book/borrow/{id}  -  borrowing book
+POST /book/return/{id}  -  returning book
+
+// End Here
+
+
+- Authentication EndPoint
+POST /auth/admin  -  admin login
+{
+  "email":"admin01@spring.com",
+  "password":"admin"
+}
+
+POST /auth  - admin login
+{
+  "email":"admin01@spring.com",
+  "password":"admin"
+}
+// End Here
+
+
+
+
+- Admin EndPoint
+
+POST /admin/add  -  adding admins
+{
+  "email":"admin01@spring.com",
+  "password":"admin01"
+}
+
+
+- Author EndPoint
+POST /author/add - adding author
+{
+  "name":"Mg Zaw"
+}
+
+GET /author - get authors info
+
+
+
+- User EndPoint
+POST /user/add - adding user
+{
+  "email":"tester02@java.com",
+  "role":"bachelor",
+  "fullName":"tester02",
+  "password":"tester02"
+}
+
+
+- User Profile
+GET /profile  -  get personal details
+
