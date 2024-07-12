@@ -189,7 +189,7 @@ public class BookService {
         book.setReturnDate(returnDate);
 
         bookRepository.save(book);
-        return ResponseEntity.ok(book);
+        return ResponseEntity.ok("{\"Message\":\"Book Borrowed Successfully\"}");
     }
 
     public ResponseEntity<Object> returnBook(long id, User user){
@@ -220,7 +220,7 @@ public class BookService {
         response.put("book",book);
         response.put("fees",user.getFees());
 
-        return ResponseEntity.ok(response);
+        return ResponseEntity.ok("{\"Message\":\"Book returned successfully\"}");
 
     }
 }

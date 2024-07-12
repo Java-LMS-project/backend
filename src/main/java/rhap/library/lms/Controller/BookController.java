@@ -90,7 +90,7 @@ public class BookController {
             }
             return bookService.borrowBook(id, user);
         }
-        return ResponseEntity.status(403).body("{\"Message\":\"Unauthorized\"");
+        return ResponseEntity.status(403).body("{\"Message\":\"Unauthorized\"}");
     }
 
     @PostMapping("/return/{id}")

@@ -14,8 +14,8 @@ public class UserService {
     private UserRepository userRepository;
 
     public ResponseEntity<Object> registerUser(UserDto userDto) {
-        if(userDto.getEmail() == null || userDto.getPassword() == null || userDto.getFullName() == null) {
-            return ResponseEntity.status(403).body("{\"message\":\"Email or Password or Full Name is empty\"}");
+        if(userDto.getEmail() == null || userDto.getPassword() == null || userDto.getFullName() == null || userDto.getRole() == null) {
+            return ResponseEntity.status(403).body("{\"message\":\"Email or Password or Full Name or Role is empty\"}");
         }
         if(userRepository.findByEmail(userDto.getEmail()) != null){
             return ResponseEntity.status(403).body("{\"message\":\"Email already Existed\"}");
