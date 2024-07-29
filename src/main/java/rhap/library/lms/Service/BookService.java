@@ -52,6 +52,9 @@ public class BookService {
         String imagePath = null;
         if (imageFile != null && !imageFile.isEmpty()) {
             try {
+                if (imageFile.isEmpty() || !isValidImageExtension(imageFile.getOriginalFilename())) {
+                    return ResponseEntity.status(403).body("{\"message\":\"Invalid file extension. Only jpg, jpeg, svg or gif are allowed.\"}");
+                }
                 imagePath = uploadImage(imageFile);
             } catch (IOException e) {
                 return ResponseEntity.status(500).body("{\"message\":\"Failed to upload image\"}");
@@ -65,7 +68,7 @@ public class BookService {
         book.setDescription(bookDto.getDescription());
         book.setAvailable(true);
         bookRepository.save(book);
-        return ResponseEntity.status(201).body(book);
+        return ResponseEntity.status(201).body("{\"message\":\"Book Added\"}");
     }
 
     // READ
@@ -75,32 +78,31 @@ public class BookService {
 
 
     // UPDATE
-    public ResponseEntity<Object> editBook(BookDto bookDto) {
-        Book book = bookRepository.findByTitle(bookDto.getTitle());
+    public ResponseEntity<Object> editBook(long id,BookDto bookDto) {
+        Book book = bookRepository.findById(id);
 
         //check if the book is valid
         if(book == null){
             return ResponseEntity.status(404).body("{\"message\":\"Book Not Found\"}");
         }
 
-        //check if user want to change author
-        if(bookDto.getNew_author() != null){
+        if(bookDto.getAuthor() != null){
             // check if the author is valid
-            Author author = authorService.getAuthor(bookDto.getNew_author());
+            Author author = authorService.getAuthor(bookDto.getAuthor());
             if(author == null){
                 return ResponseEntity.status(404).body("{\"message\":\"Author Not Found\"}");
             }
             book.setAuthor(author);
         }
 
-        // check if user entered the new title
-        if(bookDto.getNew_title() == null){
-            return ResponseEntity.status(404).body("{\"message\":\"Please Enter The New Title\"}");
-        }
+        
 
-        updateField(bookDto.getNew_title(), book::setTitle);
+        // Updating Book Info
+        book.setTitle(bookDto.getTitle());
+        book.setDescription(bookDto.getDescription());
+
         bookRepository.save(book);
-        return ResponseEntity.status(201).body(book);
+        return ResponseEntity.status(201).body("{\"message\":\"Book Updated\"}");
     }
 
     // DELETE
@@ -124,9 +126,7 @@ public class BookService {
 
 
     private String uploadImage(MultipartFile file) throws IOException {
-        if (file.isEmpty() || !isValidImageExtension(file.getOriginalFilename())) {
-            throw new IllegalArgumentException("Invalid file extension. Only jpg, jpeg, or gif are allowed.");
-        }
+
 
         // Generate MD5 hash for the filename
         String md5Hex = DigestUtils.md5Hex(file.getInputStream());
@@ -152,6 +152,7 @@ public class BookService {
         return extension.equalsIgnoreCase("jpg") ||
                 extension.equalsIgnoreCase("jpeg") ||
                 extension.equalsIgnoreCase("gif") ||
+                extension.equalsIgnoreCase("svg") ||
                 extension.equalsIgnoreCase("png");
     }
 

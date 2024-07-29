@@ -38,7 +38,7 @@ public class BookController {
         return bookService.getBookById(id);
     }
 
-    @PostMapping("/add")
+    @PostMapping("")
     public ResponseEntity<Object> addBook(@RequestHeader(value = "Auth", required = false) String AuthHeader,
                                           @RequestParam("title") String title,
                                           @RequestParam("author") String author,
@@ -60,16 +60,24 @@ public class BookController {
     };
 
 
-    @PutMapping("/edit")
-    public ResponseEntity<Object> editBook(@RequestHeader(value = "Auth", required = false) String AuthHeader,@RequestBody BookDto bookDto) {
+    @PutMapping("/{id}")
+    public ResponseEntity<Object> editBook(@RequestHeader(value = "Auth", required = false) String AuthHeader,
+                                           @PathVariable long id,
+                                           @RequestParam("title") String title,
+                                           @RequestParam("author") String author,
+                                           @RequestParam("description") String description) {
         Admin admin = authService.isAdmin(AuthHeader);
         if(admin == null){
             return ResponseEntity.status(403).body("{\"Message\":\"Unauthorized\"}");
         }
-        return bookService.editBook(bookDto);
+        BookDto bookDto = new BookDto();
+        bookDto.setTitle(title);
+        bookDto.setAuthor(author);
+        bookDto.setDescription(description);
+        return bookService.editBook(id, bookDto);
     }
 
-    @DeleteMapping("/delete")
+    @DeleteMapping("/{id}")
     public ResponseEntity<Object> deleteBook(@RequestHeader(value = "Auth", required = false) String AuthHeader,@RequestBody BookDto bookDto) {
         Admin admin = authService.isAdmin(AuthHeader);
         if(admin == null){

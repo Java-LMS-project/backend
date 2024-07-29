@@ -5,4 +5,5 @@ import rhap.library.lms.Model.Author;
 
 public interface AuthorRepository extends JpaRepository<Author, Long> {
     public Author findByName(String name);
+    public Author findById(long id);
 }

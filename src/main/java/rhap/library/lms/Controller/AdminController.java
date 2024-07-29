@@ -18,7 +18,7 @@ public class AdminController {
     @Autowired
     private AuthService authService;
 
-    @PostMapping("/add")
+    @PostMapping("")
     public ResponseEntity<?> add(@RequestHeader(value = "Auth", required = false) String AuthHeader, @RequestBody AdminDto adminDto) {
         Admin admin = authService.isAdmin(AuthHeader);
         if(admin == null){

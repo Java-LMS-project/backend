@@ -8,8 +8,6 @@ public class BookDto {
     private String author;
     private String description;
     private MultipartFile cover_img;
-    private String new_title;
-    private String new_author;
     private String is_available;
 
     public MultipartFile getCover_img() {
@@ -36,14 +34,6 @@ public class BookDto {
         this.is_available = is_available;
     }
 
-    public String getNew_author() {
-        return new_author;
-    }
-
-    public void setNew_author(String new_author) {
-        this.new_author = new_author;
-    }
-
     public String getTitle() {
         return title;
     }
@@ -56,13 +46,6 @@ public class BookDto {
         return author;
     }
 
-    public String getNew_title() {
-        return new_title;
-    }
-
-    public void setNew_title(String new_title) {
-        this.new_title = new_title;
-    }
 
     public void setAuthor(String author) {
         this.author = author;
