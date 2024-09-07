@@ -29,8 +29,11 @@ public class BookController {
     private Book book;
 
     @GetMapping("")
-    public List<Book> index() {
-        return bookService.getBooks();
+    public List<Book> index(@RequestParam(value = "q", required = false) String query) {
+        if (query == null || query.isEmpty()) {
+            return bookService.getAllBooks();
+        }
+        return bookService.getBooks(query);
     }
 
     @GetMapping("/{id}")
@@ -78,22 +81,24 @@ public class BookController {
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Object> deleteBook(@RequestHeader(value = "Auth", required = false) String AuthHeader,@RequestBody BookDto bookDto) {
+    public ResponseEntity<Object> deleteBook(@RequestHeader(value = "Auth", required = false) String AuthHeader,@PathVariable long id) {
         Admin admin = authService.isAdmin(AuthHeader);
         if(admin == null){
             return ResponseEntity.status(403).body("{\"Message\":\"Unauthorized\"}");
         }
-        return bookService.deleteBook(bookDto);
+        return bookService.deleteBook(id);
     }
 
 
 
     @PostMapping("/borrow/{id}")
-    public ResponseEntity<Object> borrowBook(@RequestHeader(value = "Auth", required = false) String AuthHeader,@PathVariable long id) {
+    public ResponseEntity<Object> borrowBook(
+            @RequestHeader(value = "Auth", required = false) String authHeader,
+            @PathVariable long id) {
 
-        User user = authService.isAuthenticated(AuthHeader);
-        if(user != null){
-            if(user.getSlot() == 0){
+        User user = authService.isAuthenticated(authHeader);
+        if (user != null) {
+            if (user.getSlot() == 0) {
                 return ResponseEntity.status(403).body("{\"Message\":\"Your Slot is Fulled\"}");
             }
             return bookService.borrowBook(id, user);

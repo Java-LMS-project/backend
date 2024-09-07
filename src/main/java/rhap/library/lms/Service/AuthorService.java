@@ -43,4 +43,13 @@ public class AuthorService {
         authorRepository.save(author);
         return ResponseEntity.ok("{\"Message\":\"Author Updated\"}");
     }
+
+    public ResponseEntity<Object> deleteAuthor(long id) {
+        Author author = authorRepository.findById(id);
+        if( author == null) {
+            return ResponseEntity.status(403).body("{\"Message\":\"Author not found\"}");
+        }
+        authorRepository.delete(author);
+        return ResponseEntity.ok("{\"Message\":\"Author Deleted\"}");
+    }
 }

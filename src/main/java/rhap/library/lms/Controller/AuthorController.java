@@ -62,4 +62,13 @@ public class AuthorController {
         }
         return authorService.editAuthor(id,authorDto);
     }
+
+    @DeleteMapping("{id}")
+    public ResponseEntity<Object> deleteAuthor(@RequestHeader(value = "Auth", required = false) String AuthHeader,@PathVariable long id) {
+        Admin admin = authService.isAdmin(AuthHeader);
+        if(admin == null){
+            return ResponseEntity.status(403).body("{\"Message\":\"Unauthorized\"}");
+        }
+        return authorService.deleteAuthor(id);
+    }
 }

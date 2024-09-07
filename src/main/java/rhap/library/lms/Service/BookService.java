@@ -22,6 +22,9 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.text.SimpleDateFormat;
 
+import com.google.zxing.WriterException;
+
+
 @Service
 public class BookService {
 
@@ -33,6 +36,9 @@ public class BookService {
     private BookRepository bookRepository;
     @Autowired
     private UserRepository userRepository;
+
+    @Autowired
+    private rhap.library.lms.service.QRCodeService qrCodeService;
 
     public void updateField(String newValue, Consumer<String> setter) {
         if (newValue != null && !newValue.isEmpty()) {
@@ -72,8 +78,43 @@ public class BookService {
     }
 
     // READ
-    public List<Book> getBooks(){
-        return bookRepository.findAll();
+    public List<Book> getAllBooks(){
+        List<Book> books = bookRepository.findAll();
+        bubbleSort(books);
+        return books;
+    }
+
+    private void bubbleSort(List<Book> books) {
+        int n = books.size();
+        boolean swapped;
+        for (int i = 0; i < n - 1; i++) {
+            swapped = false;
+            for (int j = 0; j < n - 1 - i; j++) {
+                // Compare adjacent books
+                if (books.get(j).getTitle().toLowerCase().compareTo(books.get(j + 1).getTitle()) > 0) {
+                    // Swap if they are in the wrong order
+                    Book temp = books.get(j);
+                    books.set(j, books.get(j + 1));
+                    books.set(j + 1, temp);
+                    swapped = true;
+                }
+            }
+            // If no two elements were swapped, break
+            if (!swapped) break;
+        }
+    }
+
+    // Book Search Using Linear Search Algorithm
+    public List<Book> getBooks(String query){
+        List<Book> books = bookRepository.findAll();
+        List<Book> result = new ArrayList<>();
+        for (Book book : books) {
+            if (book.getTitle().toLowerCase().contains(query.toLowerCase()) ||
+                    book.getAuthor().getName().toLowerCase().contains(query.toLowerCase())) {
+                result.add(book);
+            }
+        }
+        return result;
     }
 
 
@@ -106,16 +147,10 @@ public class BookService {
     }
 
     // DELETE
-    public ResponseEntity<Object> deleteBook(BookDto bookDto){
-
-        // Check if User Enter Title
-        if(bookDto.getTitle() == null){
-            return ResponseEntity.status(404).body("{\"message\":\"Please Enter The Title\"}");
-        }
-
+    public ResponseEntity<Object> deleteBook(long id){
 
         // Find Book
-        Book book = bookRepository.findByTitle(bookDto.getTitle());
+        Book book = bookRepository.findById(id);
         if(book == null){
             return ResponseEntity.status(404).body("{\"message\":\"Book Not Found\"}");
         }
@@ -172,12 +207,12 @@ public class BookService {
         return ResponseEntity.ok(book);
     }
 
-    public ResponseEntity<Object> borrowBook(long id, User user){
+    public ResponseEntity<Object> borrowBook(long id, User user) {
         Book book = bookRepository.findById(id);
-        if(book == null){
+        if (book == null) {
             return ResponseEntity.status(404).body("{\"Message\":\"Book Not Found\"}");
         }
-        if(!book.isAvailable()){
+        if (!book.isAvailable()) {
             return ResponseEntity.status(404).body("{\"Message\":\"Book is not available\"}");
         }
 
@@ -190,7 +225,17 @@ public class BookService {
         book.setReturnDate(returnDate);
 
         bookRepository.save(book);
-        return ResponseEntity.ok("{\"Message\":\"Book Borrowed Successfully\"}");
+
+        // Generate QR Code
+        String qrCodeText = String.format("BookID: %s\nTitle: %s\nUser Email: %s\nReturn Date: %s",
+                book.getId(),book.getTitle(), book.getUserEmail(), returnDate);
+
+        try {
+            byte[] qrCodeBytes = qrCodeService.generateQRCode(qrCodeText);
+            return ResponseEntity.ok().header("Content-Type", "image/png").body(qrCodeBytes);
+        } catch (WriterException | IOException e) {
+            return ResponseEntity.status(500).body("{\"Message\":\"Failed to generate QR code\"}");
+        }
     }
 
     public ResponseEntity<Object> returnBook(long id, User user){
@@ -207,6 +252,7 @@ public class BookService {
 
         book.setAvailable(true);
         book.setUserEmail(null);
+        book.setReturnDate(null);
         user.setSlot(user.getSlot()+1);
         bookRepository.save(book);
 
